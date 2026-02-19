@@ -1,0 +1,11 @@
+name: Legal
+id: legal
+description: Court filings, legal briefs, and contracts.
+signatures:
+  - pattern: '\b(?:Plaintiff|Defendant|Certiorari|Habeas Corpus|v\.|Cir\.)\b'
+    weight: 2
+  - pattern: '\b\d{1,4}\s+[A-Z][\w\.]+\.?\s+\d{1,4}\b'
+    weight: 4
+extraction_rules:
+  - type: bluebook_citation
+  - type: party_extraction

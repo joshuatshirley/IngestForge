@@ -1,0 +1,71 @@
+# Legal Pleading Blueprint Template
+# For court documents, legal briefs, motions, and pleadings
+
+name: "Legal Pleading Extractor"
+description: "Extract parties, citations, causes of action, and legal arguments from court documents"
+category: "legal"
+difficulty: "intermediate"
+compatible_types:
+  - "pdf"
+  - "docx"
+  - "txt"
+
+# Input source
+source:
+  type: "file"
+  path_pattern: "*.pdf"
+
+# Processing stages
+stages:
+  - name: "ingest"
+    processor: "pdf_processor"
+    config:
+      extract_tables: true
+      ocr_fallback: true
+
+  - name: "chunk"
+    processor: "legal_chunker"
+    config:
+      respect_sections: true
+      max_chunk_size: 1000
+      min_chunk_size: 100
+
+  - name: "enrich"
+    enrichers:
+      - name: "entity_extractor"
+        config:
+          entity_types:
+            - "PERSON"        # Parties, judges, witnesses
+            - "ORG"           # Law firms, courts
+            - "GPE"           # Jurisdictions
+            - "LAW"           # Statutes, regulations
+            - "CASE"          # Case citations
+
+      - name: "legal_classifier"
+        config:
+          classify_causes: true
+          classify_claims: true
+
+      - name: "citation_extractor"
+        config:
+          citation_styles:
+            - "bluebook"
+            - "case_citations"
+          extract_statutes: true
+
+      - name: "summary"
+        config:
+          summary_type: "extractive"
+          max_sentences: 5
+
+  - name: "index"
+    processor: "vector_index"
+    config:
+      storage_backend: "chromadb"
+      collection_name: "legal_pleadings"
+
+# Output format
+output:
+  format: "structured"
+  include_metadata: true
+  include_provenance: true

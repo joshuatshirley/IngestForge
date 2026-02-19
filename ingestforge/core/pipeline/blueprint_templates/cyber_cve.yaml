@@ -1,0 +1,73 @@
+# Cyber CVE Blueprint Template
+# For vulnerability reports, security advisories, and CVE documents
+
+name: "Cyber CVE Analyzer"
+description: "Extract vulnerabilities, CVSS scores, affected systems, and remediation steps from security documents"
+category: "cybersecurity"
+difficulty: "advanced"
+compatible_types:
+  - "pdf"
+  - "html"
+  - "md"
+  - "txt"
+
+source:
+  type: "file"
+  path_pattern: "*.{pdf,html,md}"
+
+stages:
+  - name: "ingest"
+    processor: "multi_format_processor"
+    config:
+      auto_detect_format: true
+      preserve_structure: true
+
+  - name: "chunk"
+    processor: "semantic_chunker"
+    config:
+      chunk_by_topic: true
+      max_chunk_size: 800
+      overlap: 50
+
+  - name: "enrich"
+    enrichers:
+      - name: "entity_extractor"
+        config:
+          entity_types:
+            - "CVE_ID"         # CVE-2024-1234
+            - "PRODUCT"        # Software products
+            - "VERSION"        # Version numbers
+            - "ORG"            # Vendors
+            - "TECH"           # Technologies
+
+      - name: "pattern_extractor"
+        config:
+          patterns:
+            cve_id: "CVE-\\d{4}-\\d{4,7}"
+            cvss_score: "CVSS:\\s*\\d+\\.\\d+"
+            severity: "(CRITICAL|HIGH|MEDIUM|LOW)"
+            cwe_id: "CWE-\\d+"
+
+      - name: "technical_classifier"
+        config:
+          classify_vulnerability_type: true
+          classify_attack_vector: true
+
+      - name: "knowledge_graph"
+        config:
+          extract_relationships: true
+          relationship_types:
+            - "affects"
+            - "mitigates"
+            - "exploits"
+
+  - name: "index"
+    processor: "vector_index"
+    config:
+      storage_backend: "chromadb"
+      collection_name: "cyber_cves"
+
+output:
+  format: "structured"
+  include_metadata: true
+  include_relationships: true

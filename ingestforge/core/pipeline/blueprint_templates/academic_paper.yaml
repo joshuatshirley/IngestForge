@@ -1,0 +1,80 @@
+# Academic Paper Blueprint Template
+# For research papers, journals, conference proceedings
+
+name: "Academic Paper Analyzer"
+description: "Extract abstracts, citations, methodology, results, and conclusions from research papers"
+category: "academic"
+difficulty: "beginner"
+compatible_types:
+  - "pdf"
+  - "docx"
+  - "tex"
+
+source:
+  type: "file"
+  path_pattern: "*.pdf"
+
+stages:
+  - name: "ingest"
+    processor: "pdf_processor"
+    config:
+      extract_tables: true
+      extract_figures: true
+      detect_sections: true
+
+  - name: "chunk"
+    processor: "citation_chunker"
+    config:
+      respect_citations: true
+      max_chunk_size: 1200
+      chunk_by_section: true
+
+  - name: "enrich"
+    enrichers:
+      - name: "entity_extractor"
+        config:
+          entity_types:
+            - "PERSON"        # Authors, researchers
+            - "ORG"           # Universities, institutions
+            - "DATE"          # Publication dates
+            - "CARDINAL"      # Statistics, measurements
+
+      - name: "citation_extractor"
+        config:
+          citation_styles:
+            - "apa"
+            - "mla"
+            - "chicago"
+            - "ieee"
+          extract_bibliography: true
+
+      - name: "structure_extractor"
+        config:
+          extract_sections:
+            - "abstract"
+            - "introduction"
+            - "methodology"
+            - "results"
+            - "discussion"
+            - "conclusion"
+
+      - name: "summary"
+        config:
+          summary_type: "abstractive"
+          max_length: 200
+
+      - name: "embeddings"
+        config:
+          model: "sentence-transformers"
+          pooling: "mean"
+
+  - name: "index"
+    processor: "vector_index"
+    config:
+      storage_backend: "chromadb"
+      collection_name: "academic_papers"
+
+output:
+  format: "structured"
+  include_metadata: true
+  include_citations: true

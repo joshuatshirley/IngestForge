@@ -1,0 +1,64 @@
+# Wikipedia extraction rules for literary reference scraping
+name: wikipedia_literary
+description: "Wikipedia article extraction optimized for literary reference material"
+domain: wikipedia.org
+path_pattern: "^/wiki/(?!Special:|Wikipedia:|Help:|Category:|File:|Template:|Portal:|Draft:)"
+priority: 15
+
+boundaries:
+  container:
+    value: "#mw-content-text .mw-parser-output"
+    type: css
+  remove:
+    - value: ".navbox"
+      type: css
+    - value: ".infobox"
+      type: css
+    - value: ".sidebar"
+      type: css
+    - value: ".mw-editsection"
+      type: css
+    - value: ".reference"
+      type: css
+    - value: ".reflist"
+      type: css
+    - value: "#toc"
+      type: css
+    - value: ".hatnote"
+      type: css
+    - value: ".mbox-small"
+      type: css
+    - value: ".ambox"
+      type: css
+    - value: ".sistersitebox"
+      type: css
+    - value: ".noprint"
+      type: css
+
+fields:
+  - name: title
+    selector:
+      value: "#firstHeading"
+      type: css
+    strategy: text
+    required: true
+  - name: content
+    selector:
+      value: "#mw-content-text .mw-parser-output"
+      type: css
+    strategy: all_text
+  - name: categories
+    selector:
+      value: "#mw-normal-catlinks ul li a"
+      type: css
+      multiple: true
+    strategy: text
+  - name: last_modified
+    selector:
+      value: "#footer-info-lastmod"
+      type: css
+    strategy: text
+    transform: strip
+
+version: "1.0"
+enabled: true

@@ -1,0 +1,177 @@
+name: Security Scan
+
+# US-2601.1: Security Shield CI Pipeline
+# Automated vulnerability scanning for every push and pull request
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  security-scan:
+    name: Security Vulnerability Scan
+    runs-on: ubuntu-latest
+
+    permissions:
+      # Required for commenting on PRs
+      pull-requests: write
+      # Required for uploading artifacts
+      actions: write
+      # Required for checking out code
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          # Fetch full history for better analysis
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run security scan
+        id: security-scan
+        run: |
+          # Run security scanner and capture output
+          python -m ingestforge.cli.main security scan . \
+            --output security-report.json \
+            --recursive \
+            --exclude "**/tests/**" \
+            --exclude "**/test_*.py" \
+            --exclude "**/__pycache__/**" \
+            --exclude "**/node_modules/**" \
+            --exclude "**/venv/**" \
+            --exclude "**/.venv/**" \
+            --exclude "**/dist/**" \
+            --exclude "**/build/**" \
+            || echo "exit_code=$?" >> $GITHUB_OUTPUT
+
+      - name: Upload security report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-report
+          path: security-report.json
+          retention-days: 30
+
+      - name: Parse security report
+        id: parse-report
+        if: always()
+        run: |
+          if [ -f security-report.json ]; then
+            # Extract summary from JSON report
+            CRITICAL=$(jq -r '.summary.critical' security-report.json)
+            HIGH=$(jq -r '.summary.high' security-report.json)
+            MEDIUM=$(jq -r '.summary.medium' security-report.json)
+            LOW=$(jq -r '.summary.low' security-report.json)
+            TOTAL=$(jq -r '.summary.total_findings' security-report.json)
+            EXIT_CODE=$(jq -r '.summary.exit_code' security-report.json)
+
+            echo "critical=$CRITICAL" >> $GITHUB_OUTPUT
+            echo "high=$HIGH" >> $GITHUB_OUTPUT
+            echo "medium=$MEDIUM" >> $GITHUB_OUTPUT
+            echo "low=$LOW" >> $GITHUB_OUTPUT
+            echo "total=$TOTAL" >> $GITHUB_OUTPUT
+            echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+          else
+            echo "critical=0" >> $GITHUB_OUTPUT
+            echo "high=0" >> $GITHUB_OUTPUT
+            echo "medium=0" >> $GITHUB_OUTPUT
+            echo "low=0" >> $GITHUB_OUTPUT
+            echo "total=0" >> $GITHUB_OUTPUT
+            echo "exit_code=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const critical = '${{ steps.parse-report.outputs.critical }}';
+            const high = '${{ steps.parse-report.outputs.high }}';
+            const medium = '${{ steps.parse-report.outputs.medium }}';
+            const low = '${{ steps.parse-report.outputs.low }}';
+            const total = '${{ steps.parse-report.outputs.total }}';
+            const exitCode = '${{ steps.parse-report.outputs.exit_code }}';
+
+            let status = '✅ **CLEAN**';
+            let statusColor = '🟢';
+            if (exitCode === '2') {
+              status = '❌ **FAILED**';
+              statusColor = '🔴';
+            } else if (exitCode === '1') {
+              status = '⚠️ **WARNINGS**';
+              statusColor = '🟡';
+            }
+
+            const comment = `## ${statusColor} Security Scan Results
+
+            **Status**: ${status}
+
+            ### Summary
+            | Severity | Count |
+            |----------|-------|
+            | 🔴 Critical | ${critical} |
+            | 🟠 High | ${high} |
+            | 🟡 Medium | ${medium} |
+            | 🔵 Low | ${low} |
+            | **Total** | **${total}** |
+
+            ### Details
+            ${exitCode === '0' ? '✅ No security issues found!' : ''}
+            ${exitCode === '1' ? '⚠️ Security warnings found. Review recommended.' : ''}
+            ${exitCode === '2' ? '❌ Critical or high severity issues found. Action required!' : ''}
+
+            <details>
+            <summary>View full report</summary>
+
+            Download the full security report from the workflow artifacts:
+            [security-report.json](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+            </details>
+
+            ---
+            🤖 *Automated security scan by [IngestForge Security Shield](https://github.com/${{ github.repository }})*
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      - name: Check security scan status
+        if: always()
+        run: |
+          EXIT_CODE="${{ steps.parse-report.outputs.exit_code }}"
+          CRITICAL="${{ steps.parse-report.outputs.critical }}"
+          HIGH="${{ steps.parse-report.outputs.high }}"
+
+          echo "Security Scan Exit Code: $EXIT_CODE"
+          echo "Critical: $CRITICAL, High: $HIGH"
+
+          if [ "$EXIT_CODE" = "2" ]; then
+            echo "❌ Security scan failed with critical or high severity findings"
+            exit 2
+          elif [ "$EXIT_CODE" = "1" ]; then
+            echo "⚠️ Security scan completed with warnings"
+            exit 1
+          else
+            echo "✅ Security scan passed - no issues found"
+            exit 0
+          fi

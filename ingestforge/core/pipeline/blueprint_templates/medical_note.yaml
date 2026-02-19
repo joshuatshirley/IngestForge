@@ -1,0 +1,80 @@
+# Medical Note Blueprint Template
+# For clinical notes, patient records, medical reports (HIPAA-compliant anonymization recommended)
+
+name: "Medical Note Extractor"
+description: "Extract diagnoses, medications, procedures, and clinical findings from medical documents"
+category: "medical"
+difficulty: "advanced"
+compatible_types:
+  - "pdf"
+  - "docx"
+  - "txt"
+  - "hl7"
+
+source:
+  type: "file"
+  path_pattern: "*.{pdf,txt}"
+
+stages:
+  - name: "ingest"
+    processor: "text_extractor"
+    config:
+      preserve_formatting: true
+      detect_tables: true
+
+  - name: "chunk"
+    processor: "semantic_chunker"
+    config:
+      chunk_by_section: true
+      section_headers:
+        - "Chief Complaint"
+        - "History of Present Illness"
+        - "Assessment"
+        - "Plan"
+      max_chunk_size: 600
+
+  - name: "enrich"
+    enrichers:
+      - name: "medical_ner"
+        config:
+          entity_types:
+            - "DIAGNOSIS"      # ICD-10 codes, conditions
+            - "MEDICATION"     # Drug names, dosages
+            - "PROCEDURE"      # CPT codes, treatments
+            - "LAB_VALUE"      # Test results
+            - "SYMPTOM"        # Patient complaints
+            - "ANATOMY"        # Body parts
+
+      - name: "redaction"
+        config:
+          redact_phi: true   # Protected Health Information
+          redact_entities:
+            - "PERSON"
+            - "DATE"
+            - "ID"
+            - "PHONE"
+            - "EMAIL"
+            - "SSN"
+          replacement: "[REDACTED]"
+
+      - name: "clinical_classifier"
+        config:
+          classify_urgency: true
+          classify_specialty: true
+
+      - name: "temporal_extractor"
+        config:
+          extract_timeline: true
+          normalize_dates: true
+
+  - name: "index"
+    processor: "vector_index"
+    config:
+      storage_backend: "chromadb"
+      collection_name: "medical_notes"
+      security_level: "high"  # HIPAA compliance
+
+output:
+  format: "structured"
+  include_metadata: true
+  anonymize: true  # Always anonymize medical data

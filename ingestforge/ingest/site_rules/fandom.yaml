@@ -1,0 +1,66 @@
+# Fandom wiki extraction rules for literary reference scraping
+name: fandom_wiki
+description: "Fandom wiki extraction for character, location, and lore pages"
+domain: fandom.com
+priority: 15
+
+boundaries:
+  container:
+    value: ".mw-parser-output"
+    type: css
+  remove:
+    - value: ".navbox"
+      type: css
+    - value: ".portable-infobox"
+      type: css
+    - value: ".pi-item"
+      type: css
+    - value: ".mw-editsection"
+      type: css
+    - value: ".reference"
+      type: css
+    - value: ".reflist"
+      type: css
+    - value: "#toc"
+      type: css
+    - value: ".noprint"
+      type: css
+    - value: ".aside"
+      type: css
+    - value: ".notifications-placeholder"
+      type: css
+    - value: ".page-header__actions"
+      type: css
+    - value: ".fandom-community-header"
+      type: css
+    - value: ".global-navigation"
+      type: css
+    - value: ".ad-slot"
+      type: css
+
+fields:
+  - name: title
+    selector:
+      value: ".page-header__title, #firstHeading"
+      type: css
+    strategy: text
+    required: true
+  - name: content
+    selector:
+      value: ".mw-parser-output"
+      type: css
+    strategy: all_text
+  - name: categories
+    selector:
+      value: ".page-footer__categories a, #mw-normal-catlinks ul li a"
+      type: css
+      multiple: true
+    strategy: text
+  - name: page_type
+    selector:
+      value: ".page-header__categories a"
+      type: css
+    strategy: text
+
+version: "1.0"
+enabled: true

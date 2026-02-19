@@ -1,0 +1,25 @@
+"""
+Safe Error Message Wrapper for IngestForge.
+"""
+
+import logging
+import re
+from typing import Optional
+
+
+class SafeErrorMessage:
+    """Sanitizes error messages to prevent information disclosure."""
+    
+    _SENSITIVE_PATTERNS = [
+        (r'[A-Za-z]:\(?:[^\/:*?"<>|\r\n]+\)*[^\/:*?"<>|\r\n]*', '[PATH]'),
+        (r'/(?:[^/\0]+/)*[^/\0]*', '[PATH]'),
+        (r'artifact_id[=:]?\s*["\']?([a-zA-Z0-9_-]+)["\']?', 'artifact_id=[ID]'),
+        (r'user_id[=:]?\s*["\']?([a-zA-Z0-9_-]+)["\']?', 'user_id=[ID]'),
+    ]
+    
+    @staticmethod
+    def sanitize(error: Exception, context: str, logger: Optional[logging.Logger] = None) -> str:
+        """Sanitize an exception for safe display to end users."""
+        log = logger or logging.getLogger(__name__)
+        log.error(f"[{context}] Error occurred: {type(error).__name__}: {error}", exc_info=True)
+        return f"An error occurred during {context}. Please check the logs or contact support."

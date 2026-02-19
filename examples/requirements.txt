@@ -1,0 +1,47 @@
+# IngestForge Examples - Requirements
+#
+# Install with: pip install -r examples/requirements.txt
+
+# Core IngestForge (assuming already installed)
+# ingestforge
+
+# Document Processing
+pdfplumber>=0.10.0          # PDF extraction
+python-docx>=0.8.11         # DOCX support
+python-pptx>=0.6.21         # PPTX support
+markdown>=3.5.0             # Markdown parsing
+
+# Academic/Research
+arxiv>=1.4.7                # ArXiv API for paper search
+
+# NLP and Text Processing
+nltk>=3.8.1                 # Natural language toolkit
+textblob>=0.17.1            # Sentiment analysis
+spacy>=3.7.0                # Named entity recognition
+
+# Data Processing
+pandas>=2.0.0               # Data manipulation
+numpy>=1.24.0               # Numerical computing
+
+# Storage and Databases
+sqlalchemy>=2.0.0           # SQL toolkit
+
+# Visualization
+matplotlib>=3.7.0           # Plotting library
+networkx>=3.1               # Graph algorithms
+
+# LLM Integration
+openai>=1.0.0               # OpenAI API
+anthropic>=0.7.0            # Anthropic API (optional)
+google-generativeai>=0.3.0  # Google Gemini (optional)
+
+# Utilities
+python-dotenv>=1.0.0        # Environment variable loading
+tqdm>=4.65.0                # Progress bars
+click>=8.1.0                # CLI utilities
+rich>=13.0.0                # Rich terminal output
+
+# Development (for running examples)
+pytest>=7.0.0               # Testing framework
+black>=23.0.0               # Code formatting
+pylint>=2.17.0              # Code linting

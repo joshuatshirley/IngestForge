@@ -1,0 +1,116 @@
+{
+  "version": "1.0.0",
+  "corpus_size_mb": 2.5,
+  "document_count": 10,
+  "last_updated": "2026-02-18",
+  "description": "IngestForge demo corpus - curated sample documents showcasing various features",
+  "documents": [
+    {
+      "id": "paper_001",
+      "title": "Attention Is All You Need",
+      "path": "papers/attention_is_all_you_need.pdf",
+      "type": "pdf",
+      "domain": "machine_learning",
+      "license": "CC-BY-4.0",
+      "url": "https://arxiv.org/abs/1706.03762",
+      "description": "Transformer architecture paper by Vaswani et al."
+    },
+    {
+      "id": "paper_002",
+      "title": "BERT: Pre-training of Deep Bidirectional Transformers",
+      "path": "papers/bert_paper.pdf",
+      "type": "pdf",
+      "domain": "machine_learning",
+      "license": "CC-BY-4.0",
+      "url": "https://arxiv.org/abs/1810.04805",
+      "description": "BERT model paper by Devlin et al."
+    },
+    {
+      "id": "article_001",
+      "title": "Introduction to Machine Learning",
+      "path": "articles/intro_to_ml.md",
+      "type": "markdown",
+      "domain": "machine_learning",
+      "license": "CC-BY-SA-4.0",
+      "url": "https://en.wikipedia.org/wiki/Machine_learning",
+      "description": "Beginner-friendly intro to ML concepts"
+    },
+    {
+      "id": "article_002",
+      "title": "History of Artificial Intelligence",
+      "path": "articles/history_of_ai.md",
+      "type": "markdown",
+      "domain": "history",
+      "license": "CC-BY-SA-4.0",
+      "url": "https://en.wikipedia.org/wiki/History_of_artificial_intelligence",
+      "description": "Timeline of AI development"
+    },
+    {
+      "id": "code_001",
+      "title": "Python Async/Await Examples",
+      "path": "code/python_async_examples.py",
+      "type": "python",
+      "domain": "programming",
+      "license": "MIT",
+      "url": "https://github.com/example/async-patterns",
+      "description": "Practical async/await patterns in Python"
+    },
+    {
+      "id": "code_002",
+      "title": "React Hooks Guide",
+      "path": "code/react_hooks_guide.js",
+      "type": "javascript",
+      "domain": "programming",
+      "license": "MIT",
+      "url": "https://github.com/example/react-hooks",
+      "description": "Modern React hooks examples"
+    },
+    {
+      "id": "audio_001",
+      "title": "AI Ethics Podcast Transcript",
+      "path": "audio/ai_podcast_transcript.txt",
+      "type": "text",
+      "domain": "ethics",
+      "license": "CC-BY-4.0",
+      "url": "https://example.com/ai-ethics-podcast",
+      "description": "Discussion on AI ethics and safety"
+    },
+    {
+      "id": "slides_001",
+      "title": "Machine Learning 101",
+      "path": "slides/ml_101.pptx",
+      "type": "pptx",
+      "domain": "machine_learning",
+      "license": "CC-BY-4.0",
+      "url": "https://example.com/ml-101-slides",
+      "description": "Introductory ML presentation"
+    },
+    {
+      "id": "news_001",
+      "title": "Recent Tech Innovations",
+      "path": "news/tech_innovation.html",
+      "type": "html",
+      "domain": "technology",
+      "license": "CC-BY-SA-4.0",
+      "url": "https://example.com/tech-news",
+      "description": "Overview of recent technological advances"
+    },
+    {
+      "id": "news_002",
+      "title": "Climate Science Update",
+      "path": "news/climate_science.html",
+      "type": "html",
+      "domain": "science",
+      "license": "CC-BY-SA-4.0",
+      "url": "https://example.com/climate-news",
+      "description": "Latest climate research findings"
+    }
+  ],
+  "sample_queries": [
+    "What is machine learning?",
+    "How do transformers work in deep learning?",
+    "Compare Python and JavaScript for async programming",
+    "Who are the key researchers in AI?",
+    "Show me async/await code examples"
+  ]
+}

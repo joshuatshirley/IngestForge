@@ -1,0 +1,32 @@
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.4.0
+  hooks:
+  - id: trailing-whitespace
+  - id: end-of-file-fixer
+  - id: check-yaml
+  - id: check-json
+  - id: detect-private-key
+- repo: https://github.com/psf/black
+  rev: 23.3.0
+  hooks:
+  - id: black
+- repo: https://github.com/charliermarsh/ruff-pre-commit
+  rev: 'v0.0.261'
+  hooks:
+  - id: ruff
+    args: [--fix, --exit-non-zero-on-fix]
+# US-2601.1: Security Shield CI - Local security scanning
+- repo: local
+  hooks:
+  - id: security-scan
+    name: Security Vulnerability Scan
+    entry: python -m ingestforge.cli.main security scan
+    language: system
+    pass_filenames: false
+    always_run: false
+    files: \.(py|js|ts|jsx|tsx|yaml|yml|json|env|sh|bash)$
+    exclude: ^(tests/|.*test_.*\.py|.*_test\.py|.*/fixtures/|.*/mocks/|.*\.md)
+    args:
+      - "."
+      - "--fail-on-warning"

@@ -1,0 +1,28 @@
+project:
+  name: my_project
+  version: 1.0.0
+  mobile_mode: false
+storage:
+  backend: chromadb
+  chromadb:
+    persist_directory: .data/chromadb
+    collection_name: ingestforge
+llm:
+  default_provider: llamacpp
+  llamacpp:
+    model_path: C:\Users\joshu\..Project\Projects\IngestForge_Repo\.data\models\Meta-Llama-3-8B-Instruct.Q4_K_M.gguf
+    n_ctx: 8192
+    n_gpu_layers: -1
+    auto_gpu_layers: true
+embedding:
+  provider: sentence-transformers
+  model: all-MiniLM-L6-v2
+chunking:
+  strategy: header
+  chunk_size: 512
+  chunk_overlap: 50
+retrieval:
+  top_k: 5
+  rerank: false
+  hybrid_search: true
+  semantic_weight: 0.7

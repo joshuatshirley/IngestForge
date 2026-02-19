@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+@theme {
+  --color-forge-navy: #1a1a2e;
+  --color-forge-crimson: #e94560;
+  --color-forge-blue: #16213e;
+  --color-forge-accent: #4ecca3;
+}
+
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 26, 26, 46;
+  --background-end-rgb: 22, 33, 62;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+}
+
+@layer components {
+  .forge-card {
+    background-color: var(--color-forge-blue);
+    border: 1px solid #374151; /* gray-700 */
+    border-radius: 0.5rem;
+    padding: 1rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    transition: border-color 0.2s;
+  }
+  
+  .forge-card:hover {
+    border-color: var(--color-forge-crimson);
+  }
+  
+  .btn-primary {
+    background-color: var(--color-forge-crimson);
+    color: white;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    transition: all 0.2s;
+  }
+  
+  .btn-primary:hover {
+    opacity: 0.9;
+  }
+}

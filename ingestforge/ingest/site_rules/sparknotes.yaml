@@ -1,0 +1,53 @@
+# SparkNotes extraction rules for literary criticism/study guide scraping
+name: sparknotes
+description: "SparkNotes extraction for literary summaries, analysis, and study guides"
+domain: sparknotes.com
+priority: 15
+
+boundaries:
+  container:
+    value: ".studyGuideText, .mainTextContent, main"
+    type: css
+  remove:
+    - value: "nav"
+      type: css
+    - value: "footer"
+      type: css
+    - value: ".ad-slot"
+      type: css
+    - value: ".no-mobile"
+      type: css
+    - value: ".interior-header"
+      type: css
+    - value: ".sidebar"
+      type: css
+    - value: ".buy-link"
+      type: css
+    - value: ".social-share"
+      type: css
+
+fields:
+  - name: title
+    selector:
+      value: "h1, .TitleHeader_title"
+      type: css
+    strategy: text
+    required: true
+  - name: content
+    selector:
+      value: ".studyGuideText, .mainTextContent, main"
+      type: css
+    strategy: all_text
+  - name: section_type
+    selector:
+      value: ".interior-sticky-nav .active, .nav-link.active"
+      type: css
+    strategy: text
+  - name: work_title
+    selector:
+      value: ".TitleHeader_subtitle, .interior-header__title a"
+      type: css
+    strategy: text
+
+version: "1.0"
+enabled: true

@@ -1,0 +1,11 @@
+name: Cyber Security
+id: cyber
+description: Threat intelligence reports and security advisories.
+signatures:
+  - pattern: '\bCVE-\d{4}-\d{4,7}\b'
+    weight: 5
+  - pattern: '\b(?:Malware|Phishing|XSS|SQLi|Attack Vector|Payload)\b'
+    weight: 3
+extraction_rules:
+  - type: cve_extraction
+  - type: vulnerability_mapping

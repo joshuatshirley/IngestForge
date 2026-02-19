@@ -1,0 +1,188 @@
+# IngestForge Security Scanner Configuration
+# US-2601.1: Security Shield CI Pipeline
+# Version: 1.0
+
+# Configuration schema version
+version: "1.0"
+
+# =============================================================================
+# Rule Configuration
+# =============================================================================
+rules:
+  # Rules to enable (by default, all rules are enabled)
+  # Specify rule IDs to explicitly enable only these rules
+  # Comment out or remove to enable all rules
+  # enabled:
+  #   - SEC001  # Hardcoded API Key
+  #   - SEC002  # Hardcoded Password
+  #   - SEC010  # SQL Injection Risk
+
+  # Rules to disable (takes precedence over enabled)
+  # Use this to selectively disable rules while keeping others active
+  disabled:
+    - SEC040  # Debug Mode (allow in development)
+    # - SEC030  # Weak Hash Algorithm (if using MD5 for non-security purposes)
+
+# =============================================================================
+# Exclusion Patterns
+# =============================================================================
+# Files and directories to exclude from scanning
+# Uses glob patterns (** matches any number of directories)
+exclude_patterns:
+  # Test files
+  - "**/tests/**"
+  - "**/test_*.py"
+  - "**/*_test.py"
+  - "**/conftest.py"
+
+  # Fixtures and mocks
+  - "**/fixtures/**"
+  - "**/mocks/**"
+  - "**/__pycache__/**"
+
+  # Third-party code
+  - "**/node_modules/**"
+  - "**/venv/**"
+  - "**/.venv/**"
+  - "**/env/**"
+  - "**/dist/**"
+  - "**/build/**"
+
+  # Example files (may contain demo secrets)
+  - "**/.env.example"
+  - "**/.env.sample"
+  - "**/example_*.py"
+  - "**/demo_*.py"
+
+  # Documentation
+  - "**/docs/**"
+  - "**/*.md"
+
+# =============================================================================
+# Severity Configuration
+# =============================================================================
+# Minimum severity level to report
+# Options: "critical", "high", "medium", "low", "info"
+# Only findings at or above this level will be included in reports
+severity_threshold: "medium"
+
+# Severity levels that cause CI to fail
+# Options: "critical", "high", "medium", "low"
+# CI will exit with code 2 if any findings match these levels
+fail_on:
+  - "critical"
+  - "high"
+
+# =============================================================================
+# Scanner Settings
+# =============================================================================
+scanner:
+  # Maximum file size to scan (in bytes)
+  # Files larger than this will be skipped
+  # Default: 10000000 (10MB)
+  max_file_size: 10000000
+
+  # Maximum number of findings to report
+  # Prevents memory issues with many findings
+  # Default: 1000
+  max_findings: 1000
+
+  # File extensions to scan
+  # Leave empty to use default list
+  # Default: .py, .js, .ts, .jsx, .tsx, .java, .go, etc.
+  file_extensions: []
+
+# =============================================================================
+# Custom Security Rules (Optional)
+# =============================================================================
+# Define your own pattern-based security rules
+# Each rule requires: rule_id, title, pattern, severity, category, recommendation
+custom_rules:
+  # Example: Custom secret pattern
+  - rule_id: "CUSTOM001"
+    title: "Custom API Token Pattern"
+    description: "Custom organization API token detected"
+    pattern: "MY_ORG_TOKEN_[A-Z0-9]{32}"
+    severity: "high"
+    category: "secrets"
+    recommendation: "Store API tokens in environment variables or secrets manager"
+    file_extensions:
+      - ".py"
+      - ".js"
+      - ".yaml"
+      - ".env"
+
+  # Example: Custom SQL pattern
+  # - rule_id: "CUSTOM002"
+  #   title: "Custom SQL Query Pattern"
+  #   description: "Unsafe SQL construction detected"
+  #   pattern: 'execute\([^)]*\+[^)]*\)'
+  #   severity: "high"
+  #   category: "injection"
+  #   recommendation: "Use parameterized queries"
+  #   file_extensions:
+  #     - ".py"
+
+# =============================================================================
+# Output Configuration
+# =============================================================================
+output:
+  # Default output format for reports
+  # Options: "console", "json", "both"
+  format: "console"
+
+  # Enable verbose output (detailed findings)
+  verbose: false
+
+  # Automatically save JSON report to file
+  # Leave empty to disable automatic saving
+  json_report_path: ""
+  # json_report_path: "security-report.json"
+
+# =============================================================================
+# CI/CD Integration
+# =============================================================================
+ci:
+  # Enable CI mode (optimized output for CI environments)
+  enabled: true
+
+  # Exit with non-zero code on warnings (strict mode)
+  # When true: warnings (medium/low) cause exit code 1
+  # When false: only critical/high cause exit code 2
+  fail_on_warning: false
+
+  # Create GitHub-flavored markdown comments (for PR comments)
+  github_comment: true
+
+  # Maximum findings to display in CI output
+  # Prevents overwhelming CI logs
+  max_display_findings: 20
+
+# =============================================================================
+# Pre-commit Hook Configuration
+# =============================================================================
+precommit:
+  # Enable pre-commit scanning
+  enabled: true
+
+  # Only scan staged files (faster)
+  staged_only: true
+
+  # Allow commit even if warnings found
+  # When true: only critical/high block commits
+  # When false: any finding blocks commit
+  allow_warnings: true
+
+# =============================================================================
+# Examples and Documentation
+# =============================================================================
+# For more information, see:
+# - Documentation: docs/guides/SECURITY_CI_SETUP.md
+# - Built-in rules: Run `ingestforge security rules`
+# - Rule categories: Run `ingestforge security categories`
+#
+# To test this configuration:
+#   python -m ingestforge.cli.main security scan . --verbose
+#
+# To use a custom config file:
+#   python -m ingestforge.cli.main security scan . --config .ingestforge-security.yaml

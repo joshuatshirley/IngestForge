@@ -1,0 +1,65 @@
+# Generic Text Blueprint Template
+# For general-purpose text extraction and indexing (beginner-friendly)
+
+name: "Generic Text Extractor"
+description: "Basic text extraction with entity recognition, summarization, and vector indexing"
+category: "general"
+difficulty: "beginner"
+compatible_types:
+  - "pdf"
+  - "docx"
+  - "txt"
+  - "md"
+  - "html"
+
+source:
+  type: "file"
+  path_pattern: "*.*"
+
+stages:
+  - name: "ingest"
+    processor: "universal_processor"
+    config:
+      auto_detect_format: true
+
+  - name: "chunk"
+    processor: "size_optimizer"
+    config:
+      target_size: 512
+      overlap: 50
+      split_sentences: true
+
+  - name: "enrich"
+    enrichers:
+      - name: "entity_extractor"
+        config:
+          entity_types:
+            - "PERSON"
+            - "ORG"
+            - "GPE"
+            - "DATE"
+            - "MONEY"
+
+      - name: "summary"
+        config:
+          summary_type: "extractive"
+          max_sentences: 3
+
+      - name: "embeddings"
+        config:
+          model: "sentence-transformers"
+          normalize: true
+
+      - name: "sentiment"
+        config:
+          classify_polarity: true
+
+  - name: "index"
+    processor: "vector_index"
+    config:
+      storage_backend: "chromadb"
+      collection_name: "documents"
+
+output:
+  format: "structured"
+  include_metadata: true
